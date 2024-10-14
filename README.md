@@ -6,6 +6,10 @@
 
 [![CI](https://github.com/jcs-elpa/ueval/actions/workflows/test.yml/badge.svg)](https://github.com/jcs-elpa/ueval/actions/workflows/test.yml)
 
+Many interactive REPL-based programming languages, such as [Emacs Lisp][Elisp], [Common Lisp][CL], and [Clojure][],
+offer their own evaluation commands. This package aims to consolidate those commands into a single
+universal command, allowing you to easily bind it to the global keymap.
+
 ## 🔧 Usage
 
 - `ueval-buffer`
@@ -83,3 +87,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 See [`LICENSE`](./LICENSE) for details.
+
+
+<!-- Links -->
+
+[Elisp]: https://www.gnu.org/s/lispintro/
+[CL]: https://lisp-lang.org/
+[Clojure]: https://clojure.org/
