@@ -4,6 +4,8 @@
 # ueval
 > Universal Evaluation Utilities
 
+[![CI](https://github.com/jcs-elpa/ueval/actions/workflows/test.yml/badge.svg)](https://github.com/jcs-elpa/ueval/actions/workflows/test.yml)
+
 ## 🔧 Usage
 
 - `ueval-buffer`
