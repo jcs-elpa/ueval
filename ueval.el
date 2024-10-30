@@ -53,10 +53,22 @@
 (declare-function sly-eval-region "ext:sly.el")
 
 (defun ueval--sly-p ()
-  "Return non-nil if we should use `sly' evaluations instead."
+  "Return non-nil; use `sly' evaluations instead."
   (when (and (featurep 'sly)
              (memq major-mode '(lisp-mode)))
     (ueval--fboundp-apply #'sly-connected-p)))
+
+(declare-function cider-connected-p "ext:cider.el")
+(declare-function cider-eval-buffer "ext:cider.el")
+(declare-function cider-eval-defun-at-point "ext:cider.el")
+(declare-function cider-eval-sexp-at-point "ext:cider.el")
+(declare-function cider-eval-region "ext:cider.el")
+
+(defun ueval--cider-p ()
+  "Return non-nil; use `cider' evaluations instead."
+  (when (and (featurep 'cider)
+             (memq major-mode '(clojure-mode clojurescript-mode)))
+    (ueval--fboundp-apply #'cider-connected-p)))
 
 ;;
 ;;; Core
@@ -66,32 +78,36 @@
   "Universal `eval-buffer'."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p) #'sly-eval-buffer)
-         (t              #'eval-buffer))))
+   (cond ((ueval--sly-p)   #'sly-eval-buffer)
+         ((ueval--cider-p) #'cider-eval-buffer)
+         (t                #'eval-buffer))))
 
 ;;;###autoload
 (defun ueval-defun ()
   "Universal `eval-defun' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p) #'sly-eval-defun)
-         (t              #'eval-defun))))
+   (cond ((ueval--sly-p)   #'sly-eval-defun)
+         ((ueval--cider-p) #'cider-eval-defun-at-point)
+         (t                #'eval-defun))))
 
 ;;;###autoload
 (defun ueval-expression ()
   "Universal `eval-expression' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p) #'sly-eval-last-expression)
-         (t              #'eval-expression))))
+   (cond ((ueval--sly-p)   #'sly-eval-last-expression)
+         ((ueval--cider-p) #'cider-eval-sexp-at-point)
+         (t                #'eval-expression))))
 
 ;;;###autoload
 (defun ueval-region ()
   "Universal `eval-region' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p) #'sly-eval-region)
-         (t              #'eval-region))))
+   (cond ((ueval--sly-p)   #'sly-eval-region)
+         ((ueval--cider-p) #'cider-eval-region)
+         (t                #'eval-region))))
 
 (provide 'ueval)
 ;;; ueval.el ends here
