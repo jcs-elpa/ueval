@@ -8,7 +8,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## 0.2.0 (Unreleased)
 > Released N/A
 
-* N/A
+* Add `cider` support (935a76facae4f8ee5967234ef11565e0e216d32c)
 
 ## 0.1.0
 > Released Oct 14, 2024
