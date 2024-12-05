@@ -74,6 +74,17 @@
 ;;; Core
 
 ;;;###autoload
+(defun ueval ()
+  "Universal start."
+  (interactive)
+  (cond ((memq major-mode '( lisp-mode))
+         (call-interactively #'sly))
+        ((memq major-mode '( clojure-mode clojure-ts-mode))
+         (call-interactively #'cider))
+        (t
+         (user-error "[ERROR] No universal start in this major-mode: %s" major-mode))))
+
+;;;###autoload
 (defun ueval-buffer ()
   "Universal `eval-buffer'."
   (interactive)
