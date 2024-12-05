@@ -46,6 +46,7 @@
 ;;
 ;;; Extensions
 
+(declare-function sly "ext:sly.el")
 (declare-function sly-connected-p "ext:sly.el")
 (declare-function sly-eval-buffer "ext:sly.el")
 (declare-function sly-eval-defun "ext:sly.el")
@@ -58,6 +59,7 @@
              (memq major-mode '(lisp-mode)))
     (ueval--fboundp-apply #'sly-connected-p)))
 
+(declare-function cider "ext:cider.el")
 (declare-function cider-connected-p "ext:cider.el")
 (declare-function cider-eval-buffer "ext:cider.el")
 (declare-function cider-eval-defun-at-point "ext:cider.el")
