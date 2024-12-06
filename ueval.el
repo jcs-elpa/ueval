@@ -54,9 +54,13 @@
 (declare-function sly-eval-region "ext:sly.el")
 
 (defun ueval--sly-p ()
+  "Return non-nil if `sly' evluations is valid."
+  (and (featurep 'sly)
+       (memq major-mode '( lisp-mode))))
+
+(defun ueval--sly-connected-p ()
   "Return non-nil; use `sly' evaluations instead."
-  (when (and (featurep 'sly)
-             (memq major-mode '(lisp-mode)))
+  (when (ueval--sly-p)
     (ueval--fboundp-apply #'sly-connected-p)))
 
 (declare-function cider "ext:cider.el")
@@ -67,10 +71,31 @@
 (declare-function cider-eval-region "ext:cider.el")
 
 (defun ueval--cider-p ()
+  "Return non-nil if `cider' evluations is valid."
+  (and (featurep 'cider)
+       (memq major-mode '( clojure-mode clojurescript-mode))))
+
+(defun ueval--cider-connected-p ()
   "Return non-nil; use `cider' evaluations instead."
-  (when (and (featurep 'cider)
-             (memq major-mode '(clojure-mode clojurescript-mode)))
+  (when (ueval--cider-p)
     (ueval--fboundp-apply #'cider-connected-p)))
+
+(declare-function geiser "ext:geiser.el")
+(declare-function geiser-eval-buffer "ext:geiser.el")
+(declare-function geiser-eval-definition "ext:geiser.el")
+(declare-function geiser-eval-last-sexp "ext:geiser.el")
+(declare-function geiser-eval-region "ext:geiser.el")
+(declare-function geiser-repl--connection "ext:geiser.el")
+
+(defun ueval--geiser-p ()
+  "Return non-nil if `geiser' evluations is valid."
+  (and (featurep 'geiser)
+       (memq major-mode '( scheme-mode))))
+
+(defun ueval--geiser-connected-p ()
+  "Return non-nil; use `geiser' evaluations instead."
+  (when (ueval--geiser-p)
+    (ueval--fboundp-apply #'geiser-repl--connection)))
 
 ;;
 ;;; Core
@@ -79,10 +104,9 @@
 (defun ueval ()
   "Universal start."
   (interactive)
-  (cond ((memq major-mode '( lisp-mode))
-         (call-interactively #'sly))
-        ((memq major-mode '( clojure-mode clojure-ts-mode))
-         (call-interactively #'cider))
+  (cond ((ueval--sly-p)    (call-interactively #'sly))
+        ((ueval--cider-p)  (call-interactively #'cider))
+        ((ueval--geiser-p) (call-interactively #'geiser))
         (t
          (user-error "[ERROR] No universal start in this major-mode: %s" major-mode))))
 
@@ -91,36 +115,40 @@
   "Universal `eval-buffer'."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p)   #'sly-eval-buffer)
-         ((ueval--cider-p) #'cider-eval-buffer)
-         (t                #'eval-buffer))))
+   (cond ((ueval--sly-connected-p)    #'sly-eval-buffer)
+         ((ueval--cider-connected-p)  #'cider-eval-buffer)
+         ((ueval--geiser-connected-p) #'geiser-eval-buffer)
+         (t                           #'eval-buffer))))
 
 ;;;###autoload
 (defun ueval-defun ()
   "Universal `eval-defun' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p)   #'sly-eval-defun)
-         ((ueval--cider-p) #'cider-eval-defun-at-point)
-         (t                #'eval-defun))))
+   (cond ((ueval--sly-connected-p)    #'sly-eval-defun)
+         ((ueval--cider-connected-p)  #'cider-eval-defun-at-point)
+         ((ueval--geiser-connected-p) #'geiser-eval-definition)
+         (t                           #'eval-defun))))
 
 ;;;###autoload
 (defun ueval-expression ()
   "Universal `eval-expression' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p)   #'sly-eval-last-expression)
-         ((ueval--cider-p) #'cider-eval-sexp-at-point)
-         (t                #'eval-expression))))
+   (cond ((ueval--sly-connected-p)    #'sly-eval-last-expression)
+         ((ueval--cider-connected-p)  #'cider-eval-sexp-at-point)
+         ((ueval--geiser-connected-p) #'geiser-eval-last-sexp)
+         (t                           #'eval-expression))))
 
 ;;;###autoload
 (defun ueval-region ()
   "Universal `eval-region' command."
   (interactive)
   (call-interactively
-   (cond ((ueval--sly-p)   #'sly-eval-region)
-         ((ueval--cider-p) #'cider-eval-region)
-         (t                #'eval-region))))
+   (cond ((ueval--sly-connected-p)    #'sly-eval-region)
+         ((ueval--cider-connected-p)  #'cider-eval-region)
+         ((ueval--geiser-connected-p) #'geiser-eval-region)
+         (t                           #'eval-region))))
 
 (provide 'ueval)
 ;;; ueval.el ends here
