@@ -97,6 +97,21 @@
   (when (ueval--geiser-p)
     (ueval--fboundp-apply #'geiser-repl--connection)))
 
+(declare-function racket-run "ext:racket-mode.el")
+(declare-function racket-send-definition "ext:racket-mode.el")
+(declare-function racket-send-last-sexp "ext:racket-mode.el")
+(declare-function racket-send-region "ext:racket-mode.el")
+
+(defun ueval--racket-p ()
+  "Return non-nil if `racket' evluations is valid."
+  (and (featurep 'racket-mode)
+       (memq major-mode '( racket-mode racket-hash-lang-mode))))
+
+(defun ueval--racket-connected-p ()
+  "Return non-nil; use `racket' evaluations instead."
+  (when (ueval--racket-p)
+    t))
+
 ;;
 ;;; Core
 
@@ -107,6 +122,7 @@
   (cond ((ueval--sly-p)    (call-interactively #'sly))
         ((ueval--cider-p)  (call-interactively #'cider))
         ((ueval--geiser-p) (call-interactively #'geiser))
+        ((ueval--racket-p) (call-interactively #'racket-run))
         (t
          (user-error "[ERROR] No universal start in this major-mode: %s" major-mode))))
 
@@ -118,6 +134,9 @@
    (cond ((ueval--sly-connected-p)    #'sly-eval-buffer)
          ((ueval--cider-connected-p)  #'cider-eval-buffer)
          ((ueval--geiser-connected-p) #'geiser-eval-buffer)
+         ((ueval--racket-connected-p) (lambda ()
+                                        (interactive)
+                                        (racket-send-region (point-min) (point-max))))
          (t                           #'eval-buffer))))
 
 ;;;###autoload
@@ -128,6 +147,7 @@
    (cond ((ueval--sly-connected-p)    #'sly-eval-defun)
          ((ueval--cider-connected-p)  #'cider-eval-defun-at-point)
          ((ueval--geiser-connected-p) #'geiser-eval-definition)
+         ((ueval--racket-connected-p) #'racket-send-definition)
          (t                           #'eval-defun))))
 
 ;;;###autoload
@@ -138,6 +158,7 @@
    (cond ((ueval--sly-connected-p)    #'sly-eval-last-expression)
          ((ueval--cider-connected-p)  #'cider-eval-sexp-at-point)
          ((ueval--geiser-connected-p) #'geiser-eval-last-sexp)
+         ((ueval--racket-connected-p) #'racket-send-last-sexp)
          (t                           #'eval-expression))))
 
 ;;;###autoload
@@ -148,6 +169,7 @@
    (cond ((ueval--sly-connected-p)    #'sly-eval-region)
          ((ueval--cider-connected-p)  #'cider-eval-region)
          ((ueval--geiser-connected-p) #'geiser-eval-region)
+         ((ueval--racket-connected-p) #'racket-send-region)
          (t                           #'eval-region))))
 
 (provide 'ueval)
