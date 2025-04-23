@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "ueval"
          "0.1.0"
          "Universal Evaluation Utilities")
